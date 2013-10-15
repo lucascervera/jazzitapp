@@ -6,8 +6,8 @@
 	<link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
 	<meta charset="utf-8">
 	<meta name="description" content="google drive powered CMS">
-	<meta name="author" content="wocum.com">
-	<title>wocum - google drive powered CMS</title>
+	<meta name="author" content="JazzItApp.com">
+	<title>JazzItApp - google drive powered CMS</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0-rc2/js/bootstrap.min.js"></script>
@@ -97,7 +97,7 @@
 </head>
 <body>
 <div class="container">
-<div id="wocum"></div>
+<div id="JazzItApp"></div>
 <div style="clear: both;"></div>
 </div>
 
@@ -117,58 +117,58 @@ var slug = GetURLParameter('id') || 'home';
 
 function pageHandler(response) {
 //    try {
-        var wocumObjectJSONString = response.table.rows[0].c[0].v;
-        var wocumObjectJSON = jQuery.parseJSON(wocumObjectJSONString);
-        var wocumObjectName = wocumObjectJSON.name;
-        document.title = "wocum - " + wocumObjectName;
-        wocumObjectTemplate = response.table.rows[0].c[1].v;
-        var wocumObjectTemplateCompiled = Handlebars.compile(wocumObjectTemplate);
-        window.wocumRelationsTemplate = response.table.rows[0].c[2].v;
-        var wocumObjectHandlebarsHTML = wocumObjectTemplateCompiled(wocumObjectJSON);
-        document.getElementById("wocum").innerHTML = wocumObjectHandlebarsHTML;
-//      console.log(wocumObjectHandlebarsHTML);
-        var wocumOutgoingRelations = '';
+        var JazzItAppObjectJSONString = response.table.rows[0].c[0].v;
+        var JazzItAppObjectJSON = jQuery.parseJSON(JazzItAppObjectJSONString);
+        var JazzItAppObjectName = JazzItAppObjectJSON.name;
+        document.title = "JazzItApp - " + JazzItAppObjectName;
+        JazzItAppObjectTemplate = response.table.rows[0].c[1].v;
+        var JazzItAppObjectTemplateCompiled = Handlebars.compile(JazzItAppObjectTemplate);
+        window.JazzItAppRelationsTemplate = response.table.rows[0].c[2].v;
+        var JazzItAppObjectHandlebarsHTML = JazzItAppObjectTemplateCompiled(JazzItAppObjectJSON);
+        document.getElementById("JazzItApp").innerHTML = JazzItAppObjectHandlebarsHTML;
+//      console.log(JazzItAppObjectHandlebarsHTML);
+        var JazzItAppOutgoingRelations = '';
         try {
-          wocumOutgoingRelationsString = response.table.rows[0].c[3].v;
-          wocumOutgoingRelationsArray = wocumOutgoingRelationsString.match(/<wocum-link>.*?<\/wocum-link>/g);
-          wocumOutgoingRelations = wocumOutgoingRelationsArray.join('%20or%20');
-          wocumOutgoingRelations = wocumOutgoingRelations.replace(/ /g,'-');
-          wocumOutgoingRelations = wocumOutgoingRelations.replace(/<wocum-link>(.*?)<\/wocum-link>/g,'(A%3D%22$1%22)');
+          JazzItAppOutgoingRelationsString = response.table.rows[0].c[3].v;
+          JazzItAppOutgoingRelationsArray = JazzItAppOutgoingRelationsString.match(/<JazzItApp-link>.*?<\/JazzItApp-link>/g);
+          JazzItAppOutgoingRelations = JazzItAppOutgoingRelationsArray.join('%20or%20');
+          JazzItAppOutgoingRelations = JazzItAppOutgoingRelations.replace(/ /g,'-');
+          JazzItAppOutgoingRelations = JazzItAppOutgoingRelations.replace(/<JazzItApp-link>(.*?)<\/JazzItApp-link>/g,'(A%3D%22$1%22)');
         } catch (err) {}
-        var wocumOutgoingRelationsQuery = '';
-        if (wocumOutgoingRelations) {
-        var wocumOutgoingRelationsQuery = '%20or%20' + wocumOutgoingRelations;
+        var JazzItAppOutgoingRelationsQuery = '';
+        if (JazzItAppOutgoingRelations) {
+        var JazzItAppOutgoingRelationsQuery = '%20or%20' + JazzItAppOutgoingRelations;
         }
-        $.getScript('http://spreadsheets.google.com/tq?key=' + gskey + '&range=wocum!A:E&tq=select%20B%20where%20(E%20contains%20%22%3Cspan%20class%3D%27wocum-field-value%27%3E%3Cwocum-link%3E'+wocumObjectName+'%3C%2Fwocum-link%3E%22)'+wocumOutgoingRelationsQuery+'&tqx=responseHandler:relationsHandler');
+        $.getScript('http://spreadsheets.google.com/tq?key=' + gskey + '&range=JazzItApp!A:E&tq=select%20B%20where%20(E%20contains%20%22%3Cspan%20class%3D%27JazzItApp-field-value%27%3E%3CJazzItApp-link%3E'+JazzItAppObjectName+'%3C%2FJazzItApp-link%3E%22)'+JazzItAppOutgoingRelationsQuery+'&tqx=responseHandler:relationsHandler');
 //    } catch (err) {
-//        document.getElementById("wocum").innerHTML = '<div class="alert alert-danger">Woooops!!! our flux capacitor has ran out of plutonium. Please press F5 to generate 1,21 gigowatts.</div>';
+//        document.getElementById("JazzItApp").innerHTML = '<div class="alert alert-danger">Woooops!!! our flux capacitor has ran out of plutonium. Please press F5 to generate 1,21 gigowatts.</div>';
 //    }
 }
 
 function relationsHandler(response) {
 //    try {
-        wocumRelationsRaw = $.map(response.table.rows, function (item, index) {
+        JazzItAppRelationsRaw = $.map(response.table.rows, function (item, index) {
             return item.c[0].v;
         });
-        console.log(wocumRelationsRaw);
-        wocumRelations = '{"relations":[' + wocumRelationsRaw + ']}';
-        if (typeof wocumRelations !== 'undefined' && wocumRelations.length > 0) {
-            var templateRelations = Handlebars.compile(window.wocumRelationsTemplate);
-            var context = jQuery.parseJSON(wocumRelations);
+        console.log(JazzItAppRelationsRaw);
+        JazzItAppRelations = '{"relations":[' + JazzItAppRelationsRaw + ']}';
+        if (typeof JazzItAppRelations !== 'undefined' && JazzItAppRelations.length > 0) {
+            var templateRelations = Handlebars.compile(window.JazzItAppRelationsTemplate);
+            var context = jQuery.parseJSON(JazzItAppRelations);
             var handlebarsHTML = templateRelations(context);
             try {
-                document.getElementById("wocum-relations-list").innerHTML = handlebarsHTML;
-                var showRelations = document.getElementById("wocum-relations-list").style.display = 'inline';
+                document.getElementById("JazzItApp-relations-list").innerHTML = handlebarsHTML;
+                var showRelations = document.getElementById("JazzItApp-relations-list").style.display = 'inline';
             } catch (err) {}
-            window.wocumRelationsDatasetString = "{\"records\":[" + wocumRelationsRaw + "],\"fields\":[{\"id\": \"link\"},{\"id\": \"date\", \"type\": \"date\"},{\"id\": \"start\", \"type\": \"date\"},{\"id\": \"end\", \"type\": \"date\"},{\"id\": \"rating\", \"type\": \"number\"},{\"id\": \"location\", \"type\": \"geo_point\"}]}";
-            window.wocumRelationsDatasetJSON = jQuery.parseJSON(window.wocumRelationsDatasetString.replace('"', '\"'));
+            window.JazzItAppRelationsDatasetString = "{\"records\":[" + JazzItAppRelationsRaw + "],\"fields\":[{\"id\": \"link\"},{\"id\": \"date\", \"type\": \"date\"},{\"id\": \"start\", \"type\": \"date\"},{\"id\": \"end\", \"type\": \"date\"},{\"id\": \"rating\", \"type\": \"number\"},{\"id\": \"location\", \"type\": \"geo_point\"}]}";
+            window.JazzItAppRelationsDatasetJSON = jQuery.parseJSON(window.JazzItAppRelationsDatasetString.replace('"', '\"'));
             try {
-                var contextFiles = jQuery.parseJSON(wocumRelations);
+                var contextFiles = jQuery.parseJSON(JazzItAppRelations);
                 var templateFiles = Handlebars.compile("{{#each relations}}{{#is type 'file'}}<div class='item carouselImg' style='width:100%'>{{{html}}}</div>{{/is}}{{/each}}");
                 var handlebarsFilesHTML = templateFiles(contextFiles);
                 document.getElementById("files-list").innerHTML = handlebarsFilesHTML;
                 $("#files-list div:nth-child(1)").addClass('active');
-                var showMedia = document.getElementById("wocum-media").style.display = 'inline';
+                var showMedia = document.getElementById("JazzItApp-media").style.display = 'inline';
             } catch (err) {}
             (function ($) {
                 $('.filterinput').keyup(function () {
@@ -192,7 +192,7 @@ function relationsHandler(response) {
         //recline app
         jQuery(function ($) {
             window.dataExplorer = null;
-            window.explorerDiv = $('#wocum-data-explorer');
+            window.explorerDiv = $('#JazzItApp-data-explorer');
             // This is some fancy stuff to allow configuring the multiview from parameters in the query string
             var state = recline.View.parseQueryString(decodeURIComponent(window.location.search));
             if (state) {
@@ -215,9 +215,9 @@ function relationsHandler(response) {
                 );
                 dataset = new recline.Model.Dataset(datasetInfo);
             } else {
-                dataset = new recline.Model.Dataset(window.wocumRelationsDatasetJSON);
+                dataset = new recline.Model.Dataset(window.JazzItAppRelationsDatasetJSON);
             }
-            var $el = $('#wocum-data-explorer');
+            var $el = $('#JazzItApp-data-explorer');
             $el.append('Total found: ' + dataset.recordCount + '<br />');
             createExplorer(dataset, state);
         })
@@ -299,7 +299,7 @@ map.render();
 
 <script type="text/javascript">
 (function () {
-$.getScript('http://spreadsheets.google.com/tq?key='+gskey+'&range=wocum!A:E&tq=select%20B,C,D,E%20where%20A%20%3D%20%22'+slug+'%22&tqx=responseHandler:pageHandler');
+$.getScript('http://spreadsheets.google.com/tq?key='+gskey+'&range=JazzItApp!A:E&tq=select%20B,C,D,E%20where%20A%20%3D%20%22'+slug+'%22&tqx=responseHandler:pageHandler');
 })()
 </script>
 </body></html>
