@@ -13,8 +13,6 @@
 	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0-rc2/js/bootstrap.min.js"></script>
 	<script type="text/javascript" async="" src="http://www.google-analytics.com/ga.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0/handlebars.min.js"></script>
- 	<script src="https://googledrive.com/host/0B0YWdwxH6K5XMUJrQ1ozUzVjR28/lib/swag.js"></script>
-	<script>Swag.registerHelpers(Handlebars);</script>
 
   
   <link rel="stylesheet" href="http://reclinejs.com/vendor/leaflet/0.4.4/leaflet.css">
@@ -94,14 +92,17 @@
 
   <link href="http://googledrive.com/host/0B0YWdwxH6K5XMldaZHRfSEx1cEk/pygments.css" rel="stylesheet" type="text/css">
   <link href="http://googledrive.com/host/0B0YWdwxH6K5XMldaZHRfSEx1cEk/style.css" rel="stylesheet" type="text/css">
+  <link href="http://reclinejs.com/vendor/bootstrap/2.0.2/css/bootstrap.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+
 <div class="container">
 <div id="JazzItApp"></div>
 <div style="clear: both;"></div>
 </div>
 
 <script type="text/javascript">
+
 function GetURLParameter(sParam) {
     var sPageURL = window.location.search.substring(1);
     var sURLVariables = sPageURL.split('&');
@@ -156,10 +157,14 @@ function relationsHandler(response) {
             var templateRelations = Handlebars.compile(window.JazzItAppRelationsTemplate);
             var context = jQuery.parseJSON(JazzItAppRelations);
             var handlebarsHTML = templateRelations(context);
-            try {
+/*            try {
                 document.getElementById("JazzItApp-relations-list").innerHTML = handlebarsHTML;
                 var showRelations = document.getElementById("JazzItApp-relations-list").style.display = 'inline';
+                var options = {
+    valueNames: [ 'name' ]
+};
             } catch (err) {}
+*/ 
             window.JazzItAppRelationsDatasetString = "{\"records\":[" + JazzItAppRelationsRaw + "],\"fields\":[{\"id\": \"link\"},{\"id\": \"date\", \"type\": \"date\"},{\"id\": \"start\", \"type\": \"date\"},{\"id\": \"end\", \"type\": \"date\"},{\"id\": \"rating\", \"type\": \"number\"},{\"id\": \"location\", \"type\": \"geo_point\"}]}";
             window.JazzItAppRelationsDatasetJSON = jQuery.parseJSON(window.JazzItAppRelationsDatasetString.replace('"', '\"'));
             try {
@@ -170,23 +175,6 @@ function relationsHandler(response) {
                 $("#files-list div:nth-child(1)").addClass('active');
                 var showMedia = document.getElementById("JazzItApp-media").style.display = 'inline';
             } catch (err) {}
-            (function ($) {
-                $('.filterinput').keyup(function () {
-                    var a = $(this).val();
-                    if (a.length > 2) {
-                        // this finds all links in the list that contain the input, and hide the ones not containing the input while showing the ones that do
-                        var containing = $('#relations-list li').filter(function () {
-                            var regex = new RegExp('\\b' + a, 'i');
-                            return regex.test($('a', this).text());
-                        }).slideDown();
-                        $('#relations-list li').not(containing).slideUp();
-                    } else {
-                        $('#relations-list li').slideDown();
-                    }
-                    return false;
-                })
-
-            }(jQuery));
         }
 
         //recline app
@@ -225,6 +213,7 @@ function relationsHandler(response) {
 //        console.log(err);
 //    }
 }
+
 // make Explorer creation / initialization in a function so we can call it
 // again and again
 var createExplorer = function(dataset, state) {
@@ -238,7 +227,113 @@ var createExplorer = function(dataset, state) {
   var $el = $('<div />');
   $el.appendTo(window.explorerDiv);
 
+/*
+  var template = ' \
+    <div class="record"> \
+      <h3> \
+        {{title}} <em>by {{Author}}</em> \
+      </h3> \
+      <p>{{description}}</p> \
+      <p><code>${{price}}</code></p> \
+    </div> \
+  ';
+*/  
+  var template = ' \
+     <div id="JazzItApp-relations-list"><div id="{{id}}" class="record"><h3 class="JazzItApp-card-name name">{{#type_image}}<img src="{{type_image}}" alt="type image" class="icon-small">{{/type_image}}{{type}}: <a href="{{url}}">{{name}}</a></h3>{{#image}}<img src="{{image}}" alt="image" class="JazzItApp-thumbnail">{{/image}}<p class="excerpt">{{excerpt}}</p><p class="fields">{{{fields}}}</p></div></ul></div> \
+';
+
+  // #### Optional - we configure the initial query a bit and set up facets
+
+
+
+// ## Simple Search View
+//
+// This is a simple bespoke Backbone view for the Search. It Pulls together
+// various Recline UI components and the central Dataset and Query (state)
+// object
+//
+// It also provides simple support for customization e.g. of template for list of results
+// 
+//      var view = new SearchView({
+//        el: $('some-element'),
+//        model: dataset
+//        // EITHER a mustache template (passed a JSON version of recline.Model.Record
+//        // OR a function which receives a record in JSON form and returns html
+//        template: mustache-template-or-function
+//      });
+var SearchView = Backbone.View.extend({
+  initialize: function(options) {
+    this.el = $(this.el);
+    _.bindAll(this, 'render');
+    this.recordTemplate = options.template;
+    // Every time we do a search the recline.Dataset.records Backbone
+    // collection will get reset. We want to re-render each time!
+    this.model.records.bind('reset', this.render);
+    this.templateResults = options.template;
+  },
+
+  // overall template for this view
+  template: ' \
+    <div class="total"><h2><span></span> records found</h2></div> \
+    <div class="body"> \
+      <div class="sidebar"></div> \
+      <div class="results"> \
+        {{{results}}} \
+      </div> \
+    </div> \
+    <div class="pager-here"></div> \
+  ',
+ 
+  // render the view
+  render: function() {
+    var results = '';
+    if (_.isFunction(this.templateResults)) {
+      var results = _.map(this.model.records.toJSON(), this.templateResults).join('\n');
+    } else {
+      // templateResults is just for one result ...
+      var tmpl = '{{#records}}' + this.templateResults + '{{/records}}'; 
+      var results = Mustache.render(tmpl, {
+        records: this.model.records.toJSON()
+      });
+    }
+    var html = Mustache.render(this.template, {
+      results: results
+    });
+    this.el.html(html);
+
+    // Set the total records found info
+    this.el.find('.total span').text(this.model.recordCount);
+
+    // ### Now setup all the extra mini-widgets
+    // 
+    // Facets, Pager, QueryEditor etc
+
+    var view = new recline.View.FacetViewer({
+      model: this.model
+    });
+    view.render();
+    this.el.find('.sidebar').append(view.el);
+
+    var pager = new recline.View.Pager({
+      model: this.model.queryState
+    });
+    this.el.find('.pager-here').append(pager.el);
+
+    var queryEditor = new recline.View.QueryEditor({
+      model: this.model.queryState
+    });
+    this.el.find('.query-here').append(queryEditor.el);
+  }
+});
   var views = [
+    {
+      id: 'search',
+      label: 'Search',
+      view: new SearchView({
+        model: dataset,
+        template: template
+      })
+    },
     {
       id: 'grid',
       label: 'Grid',
@@ -259,8 +354,14 @@ var createExplorer = function(dataset, state) {
       view: new recline.View.Map({
         model: dataset
       })
+    },
+    {
+      id: 'timeline',
+      label: 'Timeline',
+      view: new recline.View.Timeline({
+        model: dataset
+      })
     }
-    
   ];
   window.dataExplorer = new recline.View.MultiView({
     model: dataset,
@@ -268,45 +369,23 @@ var createExplorer = function(dataset, state) {
     state: state,
     views: views
   });
-
-var $el = $('#mytimeline');
-var timeline = new recline.View.Timeline({
-  model: dataset
-});
-$el.append(timeline.el);
-// set the headline/title for each record with x column
-timeline.convertRecord = function(record, fields) {
-  var out = this._convertRecord(record);
-  if (out) {
-    out.headline = record.get('id').toString();
-  }
-  return out;
-}
-timeline.render();
-
-var $el = $('#mymap');
-var map = new recline.View.Map({
-  model: dataset
-});
-$el.append(map.el);
-map.render();
 }
 </script>
 </div>
+
 
 <script type="text/javascript">
 (function () {
 $.getScript('http://spreadsheets.google.com/tq?key='+gskey+'&range=JazzItApp!A:E&tq=select%20B,C,D,E%20where%20A%20%3D%20%22'+slug+'%22&tqx=responseHandler:pageHandler');
 })()
 </script>
+
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
   ga('create', 'UA-44897563-1', 'jazzitapp.com');
   ga('send', 'pageview');
-
 </script>
 </body></html>
