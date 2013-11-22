@@ -117,33 +117,33 @@ var gskey = GetURLParameter('key') || '0AkYWdwxH6K5XdGxUY2RaZWNlUEFHNlk3b3MwTWZx
 var slug = GetURLParameter('id') || 'home';
 
 function pageHandler(response) {
-//    try {
-        var JazzItAppObjectJSONString = response.table.rows[0].c[0].v;
-        var JazzItAppObjectJSON = jQuery.parseJSON(JazzItAppObjectJSONString);
-        var JazzItAppObjectName = JazzItAppObjectJSON.name;
-        document.title = "JazzItApp - " + JazzItAppObjectName;
-        JazzItAppObjectTemplate = response.table.rows[0].c[1].v;
-        var JazzItAppObjectTemplateCompiled = Handlebars.compile(JazzItAppObjectTemplate);
-        window.JazzItAppRelationsTemplate = response.table.rows[0].c[2].v;
-        var JazzItAppObjectHandlebarsHTML = JazzItAppObjectTemplateCompiled(JazzItAppObjectJSON);
-        document.getElementById("JazzItApp").innerHTML = JazzItAppObjectHandlebarsHTML;
-//      console.log(JazzItAppObjectHandlebarsHTML);
-        var JazzItAppOutgoingRelations = '';
-        try {
-          JazzItAppOutgoingRelationsString = response.table.rows[0].c[3].v;
-          JazzItAppOutgoingRelationsArray = JazzItAppOutgoingRelationsString.match(/<JazzItApp-link>.*?<\/JazzItApp-link>/g);
-          JazzItAppOutgoingRelations = JazzItAppOutgoingRelationsArray.join('%20or%20');
-          JazzItAppOutgoingRelations = JazzItAppOutgoingRelations.replace(/ /g,'-');
-          JazzItAppOutgoingRelations = JazzItAppOutgoingRelations.replace(/<JazzItApp-link>(.*?)<\/JazzItApp-link>/g,'(A%3D%22$1%22)');
-        } catch (err) {}
-        var JazzItAppOutgoingRelationsQuery = '';
-        if (JazzItAppOutgoingRelations) {
-        var JazzItAppOutgoingRelationsQuery = '%20or%20' + JazzItAppOutgoingRelations;
-        }
-        $.getScript('http://spreadsheets.google.com/tq?key=' + gskey + '&range=JazzItApp!A:E&tq=select%20B%20where%20(E%20contains%20%22%3Cspan%20class%3D%27JazzItApp-field-value%27%3E%3CJazzItApp-link%3E'+JazzItAppObjectName+'%3C%2FJazzItApp-link%3E%22)'+JazzItAppOutgoingRelationsQuery+'&tqx=responseHandler:relationsHandler');
-//    } catch (err) {
-//        document.getElementById("JazzItApp").innerHTML = '<div class="alert alert-danger">Woooops!!! our flux capacitor has ran out of plutonium. Please press F5 to generate 1,21 gigowatts.</div>';
-//    }
+	try {
+	        var JazzItAppObjectJSONString = response.table.rows[0].c[0].v;
+	        var JazzItAppObjectJSON = jQuery.parseJSON(JazzItAppObjectJSONString);
+	        var JazzItAppObjectName = JazzItAppObjectJSON.name;
+	        document.title = "JazzItApp - " + JazzItAppObjectName;
+	        JazzItAppObjectTemplate = response.table.rows[0].c[1].v;
+	        var JazzItAppObjectTemplateCompiled = Handlebars.compile(JazzItAppObjectTemplate);
+	        window.JazzItAppRelationsTemplate = response.table.rows[0].c[2].v;
+	        var JazzItAppObjectHandlebarsHTML = JazzItAppObjectTemplateCompiled(JazzItAppObjectJSON);
+	        document.getElementById("JazzItApp").innerHTML = JazzItAppObjectHandlebarsHTML;
+	//      console.log(JazzItAppObjectHandlebarsHTML);
+	        var JazzItAppOutgoingRelations = '';
+	        try {
+	          JazzItAppOutgoingRelationsString = response.table.rows[0].c[3].v;
+	          JazzItAppOutgoingRelationsArray = JazzItAppOutgoingRelationsString.match(/<JazzItApp-link>.*?<\/JazzItApp-link>/g);
+	          JazzItAppOutgoingRelations = JazzItAppOutgoingRelationsArray.join('%20or%20');
+	          JazzItAppOutgoingRelations = JazzItAppOutgoingRelations.replace(/ /g,'-');
+	          JazzItAppOutgoingRelations = JazzItAppOutgoingRelations.replace(/<JazzItApp-link>(.*?)<\/JazzItApp-link>/g,'(A%3D%22$1%22)');
+	        } catch (err) {}
+	        var JazzItAppOutgoingRelationsQuery = '';
+	        if (JazzItAppOutgoingRelations) {
+	        var JazzItAppOutgoingRelationsQuery = '%20or%20' + JazzItAppOutgoingRelations;
+	        }
+	        $.getScript('http://spreadsheets.google.com/tq?key=' + gskey + '&range=JazzItApp!A:E&tq=select%20B%20where%20(E%20contains%20%22%3Cspan%20class%3D%27JazzItApp-field-value%27%3E%3CJazzItApp-link%3E'+JazzItAppObjectName+'%3C%2FJazzItApp-link%3E%22)'+JazzItAppOutgoingRelationsQuery+'&tqx=responseHandler:relationsHandler');
+	} catch (err) {
+	document.getElementById("JazzItApp").innerHTML = '<div class="alert alert-danger">Woooops!!! our flux capacitor has ran out of plutonium. Please press F5 to generate 1,21 gigowatts.</div>';
+	}
 }
 
 function relationsHandler(response) {
@@ -213,8 +213,7 @@ function relationsHandler(response) {
 //    }
 }
 
-// make Explorer creation / initialization in a function so we can call it
-// again and again
+// make Explorer creation / initialization in a function so we can call it again and again
 var createExplorer = function(dataset, state) {
   // remove existing data explorer view
   var reload = false;
@@ -226,17 +225,6 @@ var createExplorer = function(dataset, state) {
   var $el = $('<div />');
   $el.appendTo(window.explorerDiv);
 
-/*
-  var template = ' \
-    <div class="record"> \
-      <h3> \
-        {{title}} <em>by {{Author}}</em> \
-      </h3> \
-      <p>{{description}}</p> \
-      <p><code>${{price}}</code></p> \
-    </div> \
-  ';
-*/  
   var template = ' \
      <div id="JazzItApp-relations-list"><div id="{{id}}" class="record"><h3 class="JazzItApp-card-name name">{{#type_image}}<img src="{{type_image}}" alt="type image" class="icon-small">{{/type_image}}{{type}}: <a href="{{url}}">{{name}}</a></h3>{{#image}}<img src="{{image}}" alt="image" class="JazzItApp-thumbnail">{{/image}}<p class="fields">{{{fields}}}</p><p class="excerpt">{{excerpt}}</p></div></ul></div> \
 ';
@@ -265,8 +253,7 @@ var SearchView = Backbone.View.extend({
     this.el = $(this.el);
     _.bindAll(this, 'render');
     this.recordTemplate = options.template;
-    // Every time we do a search the recline.Dataset.records Backbone
-    // collection will get reset. We want to re-render each time!
+    // Every time we do a search the recline.Dataset.records Backbone collection will get reset. We want to re-render each time!
     this.model.records.bind('reset', this.render);
     this.templateResults = options.template;
   },
