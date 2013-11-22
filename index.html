@@ -206,7 +206,6 @@ function relationsHandler(response) {
                 dataset = new recline.Model.Dataset(window.JazzItAppRelationsDatasetJSON);
             }
             var $el = $('#JazzItApp-data-explorer');
-            $el.append('Total found: ' + dataset.recordCount + '<br />');
             createExplorer(dataset, state);
         })
 //    } catch (err) {
