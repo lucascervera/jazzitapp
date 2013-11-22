@@ -239,7 +239,7 @@ var createExplorer = function(dataset, state) {
   ';
 */  
   var template = ' \
-     <div id="JazzItApp-relations-list"><div id="{{id}}" class="record"><h3 class="JazzItApp-card-name name">{{#type_image}}<img src="{{type_image}}" alt="type image" class="icon-small">{{/type_image}}{{type}}: <a href="{{url}}">{{name}}</a></h3>{{#image}}<img src="{{image}}" alt="image" class="JazzItApp-thumbnail">{{/image}}<p class="excerpt">{{excerpt}}</p><p class="fields">{{{fields}}}</p></div></ul></div> \
+     <div id="JazzItApp-relations-list"><div id="{{id}}" class="record"><h3 class="JazzItApp-card-name name">{{#type_image}}<img src="{{type_image}}" alt="type image" class="icon-small">{{/type_image}}{{type}}: <a href="{{url}}">{{name}}</a></h3>{{#image}}<img src="{{image}}" alt="image" class="JazzItApp-thumbnail pull-left">{{/image}}<p class="fields">{{{fields}}}</p><p class="excerpt">{{excerpt}}</p></div></ul></div> \
 ';
 
   // #### Optional - we configure the initial query a bit and set up facets
